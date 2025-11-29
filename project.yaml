@@ -2,15 +2,15 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: deploy
-  namespace: argocd
+  namespace: argocd # Make sure this matches your Argo CD namespace
 spec:
   clusterResourceWhitelist:
     - group: rbac.authorization.k8s.io
       kind: ClusterRole
     - group: rbac.authorization.k8s.io
       kind: ClusterRoleBinding
-    - group: apiextentions.k8s.io
-      kind: CustomResourceDefinition # Allow CRD Resource
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
   description: Ghost Blog project
   destinations:
     - name: "*"
@@ -19,6 +19,7 @@ spec:
   roles:
     - name: deploy-app
       groups:
-        - rbac.authorization.k8s.io
+        - devs # Replace with your actual Kubernetes group
   sourceRepos:
-    - "*"
+    - "*" # Replace with your Git repo URL for security
+

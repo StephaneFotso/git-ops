@@ -5,17 +5,17 @@ metadata:
   name: ghost
   namespace: argocd
 spec:
-  project: deploy # Using the default Argo CD project for safety
+  project: deploy
   source:
     repoURL: "https://github.com/StephaneFotso/git-ops"
-    targetRevision: HEAD # Replace with your branch name
-    path: ghost # Path to your Helm chart directory
+    targetRevision: main
+    path: ghost
     helm:
       valueFiles:
         - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: app # Ghost gets its own namespace
+    namespace: ghost
   syncPolicy:
     automated:
       prune: true
@@ -35,14 +35,14 @@ spec:
   project: deploy
   source:
     repoURL: "https://github.com/StephaneFotso/git-ops"
-    targetRevision: HEAD
+    targetRevision: main
     path: fluent-bit
     helm:
       valueFiles:
         - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: app # Fluent Bit deployed separately for best practice
+    namespace: fluent-bit
   syncPolicy:
     automated:
       prune: true
@@ -60,19 +60,16 @@ metadata:
   namespace: argocd
 spec:
   project: deploy
-
   source:
     repoURL: https://github.com/StephaneFotso/git-ops
-    targetRevision: HEAD
+    targetRevision: main
     path: dev
   destination:
     server: https://kubernetes.default.svc
-    namespace: app
-
+    namespace: dev
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
-
-    automated:
-      selfHeal: true
-      prune: true

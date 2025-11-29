@@ -4,14 +4,13 @@ metadata:
   labels:
     app: demoapp
   name: demoapp-svc
-  namespace: demoapp-ns
 spec:
   ports:
-  - name: demoapp-ports
-    nodePort: 31000
-    port: 80
-    protocol: TCP
-    targetPort: 80
+    - name: demoapp-ports
+      nodePort: 31000
+      port: 80
+      protocol: TCP
+      targetPort: 80
   selector:
     app: demoapp
   type: NodePort
