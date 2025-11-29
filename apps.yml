@@ -1,54 +1,78 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ghost # This is the app name we will see in the Argo UI
-  namespace: argocd # Always in argocd namespace
-
+  name: ghost
+  namespace: argocd
 spec:
-  project: deploy # Argo CD Projects,
+  project: deploy # Using the default Argo CD project for safety
   source:
-    repoURL: "https://github.com/StephaneFotso/git-ops" # Our GitHub Repo
-    targetRevision: HEAD # The Git branch
-    path: ghost # The path inside the repo to the Helm chart
+    repoURL: "https://github.com/StephaneFotso/git-ops"
+    targetRevision: HEAD # Replace with your branch name
+    path: ghost # Path to your Helm chart directory
     helm:
       valueFiles:
-        - values.yaml # we can also specify custom values files
-
+        - values.yaml
   destination:
-    namespace: "app" # The namespace where to deploy
-    server: https://kubernetes.default.svc # Our cluster
-
+    server: https://kubernetes.default.svc
+    namespace: app # Ghost gets its own namespace
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
-    automated:
-      prune: true # Remove resources if they are deleted from Git
-      selfHeal: true # Fix resources if manually changed in the cluster
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 3
 
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: fluent-bit # This is the app name we will see in the Argo UI
-  namespace: argocd # Always in argocd namespace
-
+  name: fluent-bit
+  namespace: argocd
 spec:
-  project: deploy # Argo CD Projects,
+  project: deploy
   source:
-    repoURL: "https://github.com/StephaneFotso/git-ops" # Our GitHub Repo
-    targetRevision: HEAD # The Git branch
-    path: fluent-bit # The path inside the repo to the Helm chart
+    repoURL: "https://github.com/StephaneFotso/git-ops"
+    targetRevision: HEAD
+    path: fluent-bit
     helm:
       valueFiles:
-        - values.yaml # we can also specify custom values files
-
+        - values.yaml
   destination:
-    namespace: "app" # The namespace where to deploy
-    server: https://kubernetes.default.svc # Our cluster
+    server: https://kubernetes.default.svc
+    namespace: app # Fluent Bit deployed separately for best practice
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 3
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp-argo-application
+  namespace: argocd
+spec:
+  project: deploy
+
+  source:
+    repoURL: https://github.com/StephaneFotso/git-ops
+    targetRevision: HEAD
+    path: dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app
 
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
+
     automated:
-      prune: true # Remove resources if they are deleted from Git
-      selfHeal: true # Fix resources if manually changed in the cluster
+      selfHeal: true
+      prune: true
