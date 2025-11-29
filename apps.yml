@@ -1,23 +1,54 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ghost
-  namespace: argocd
-spec:
-  project: deploy
+  name: ghost # This is the app name we will see in the Argo UI
+  namespace: argocd # Always in argocd namespace
 
+spec:
+  project: deploy # Argo CD Projects,
   source:
-    repoURL: "https://github.com/StephaneFotso/git-ops"
-    targetRevision: HEAD
-    path: ghost
+    repoURL: "https://github.com/StephaneFotso/git-ops" # Our GitHub Repo
+    targetRevision: HEAD # The Git branch
+    path: ghost # The path inside the repo to the Helm chart
+    helm:
+      valueFiles:
+        - values.yaml # we can also specify custom values files
+
   destination:
-    server: https://kubernetes.default.svc
-    namespace: app
+    namespace: "app" # The namespace where to deploy
+    server: https://kubernetes.default.svc # Our cluster
 
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
-
     automated:
-      selfHeal: true
-      prune: true
+      prune: true # Remove resources if they are deleted from Git
+      selfHeal: true # Fix resources if manually changed in the cluster
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-bit # This is the app name we will see in the Argo UI
+  namespace: argocd # Always in argocd namespace
+
+spec:
+  project: deploy # Argo CD Projects,
+  source:
+    repoURL: "https://github.com/StephaneFotso/git-ops" # Our GitHub Repo
+    targetRevision: HEAD # The Git branch
+    path: fluent-bit # The path inside the repo to the Helm chart
+    helm:
+      valueFiles:
+        - values.yaml # we can also specify custom values files
+
+  destination:
+    namespace: "app" # The namespace where to deploy
+    server: https://kubernetes.default.svc # Our cluster
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true # Remove resources if they are deleted from Git
+      selfHeal: true # Fix resources if manually changed in the cluster
