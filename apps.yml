@@ -1,21 +1,19 @@
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ghost
+  name: trivy-operator
   namespace: argocd
 spec:
   project: deploy
   source:
     repoURL: "https://github.com/StephaneFotso/git-ops"
     targetRevision: main
-    path: ghost
+    path: trivy-operator
     helm:
       valueFiles:
         - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: ghost
   syncPolicy:
     automated:
       prune: true
@@ -42,7 +40,6 @@ spec:
         - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: fluent-bit
   syncPolicy:
     automated:
       prune: true
@@ -56,7 +53,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: myapp-argo-application
+  name: dev
   namespace: argocd
 spec:
   project: deploy
@@ -66,10 +63,36 @@ spec:
     path: dev
   destination:
     server: https://kubernetes.default.svc
-    namespace: dev
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ghost
+  namespace: argocd
+spec:
+  project: deploy
+  source:
+    repoURL: "https://github.com/StephaneFotso/git-ops"
+    targetRevision: main
+    path: ghost
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ghost
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 3
