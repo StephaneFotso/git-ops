@@ -122,3 +122,26 @@ spec:
       - CreateNamespace=true
       - ApplyOutOfSyncOnly=true
   revisionHistoryLimit: 3
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus # This is the app name we will see in the Argo UI
+  namespace: argocd # Always in argocd namespace
+spec:
+  project: deploy # Argo CD Projects,
+  source:
+    repoURL: "https://github.com/StephaneFotso/sre-project" # Our GitHub Repo
+    targetRevision: master # The Git branch
+    path: prometheus # The path inside the repo to the Helm chart
+    helm:
+      valueFiles:
+        - values.yaml # we can also specify custom values files
+  destination:
+    #namespace: "app" # The namespace where to deploy
+    server: https://kubernetes.default.svc # Our cluster
+  syncPolicy:
+    automated:
+      prune: true # Remove resources if they are deleted from Git
+      selfHeal: true # Fix resources if manually changed in the cluster
+
