@@ -96,3 +96,29 @@ spec:
       - CreateNamespace=true
       - ApplyOutOfSyncOnly=true
   revisionHistoryLimit: 3
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: policy-reporter
+  namespace: argocd
+spec:
+  project: deploy
+  source:
+    repoURL: "https://github.com/StephaneFotso/git-ops"
+    targetRevision: main
+    path: policy-reporter
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+  revisionHistoryLimit: 3
